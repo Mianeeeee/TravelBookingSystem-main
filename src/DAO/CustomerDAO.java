@@ -7,58 +7,48 @@ import java.time.format.*;
 import java.time.LocalDate;
 
 public class CustomerDAO {
-    // Chuẩn hóa ngày
-    private static String normalizeDate(String date) {
+    // Patterns định dạng ngày (tĩnh, tránh tạo lại mỗi lần gọi)
+    private static final String[] DATE_PATTERNS = {
+            "d/M/yyyy", "d/MM/yyyy", "dd/M/yyyy", "dd/MM/yyyy",
+            "d-M-yyyy", "d-MM-yyyy", "dd-M-yyyy", "dd-MM-yyyy",
+            "yyyy/M/d", "yyyy/MM/d", "yyyy/M/dd", "yyyy/MM/dd",
+            "yyyy-M-d", "yyyy-MM-d", "yyyy-M-dd", "yyyy-MM-dd"
+    };
+
+    // Hàm parse ngày từ chuỗi với nhiều định dạng khác nhau
+    private static LocalDate parseDate(String date) {
         if (date == null || date.trim().isEmpty())
             return null;
 
         date = date.trim().replace("/", "-");
 
-        String[] patterns = {
-                "d/M/yyyy", "d/MM/yyyy", "dd/M/yyyy", "dd/MM/yyyy",
-                "d-M-yyyy", "d-MM-yyyy", "dd-M-yyyy", "dd-MM-yyyy",
-                "yyyy/M/d", "yyyy/MM/d", "yyyy/M/dd", "yyyy/MM/dd",
-                "yyyy-M-d", "yyyy-MM-d", "yyyy-M-dd", "yyyy-MM-dd"
-        };
-
-        for (String pattern : patterns) {
+        for (String pattern : DATE_PATTERNS) {
             try {
-                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(pattern);
-                LocalDate res = LocalDate.parse(date, inputFormatter);
-                return res.format(DateTimeFormatter.ISO_LOCAL_DATE);
+                return LocalDate.parse(date, DateTimeFormatter.ofPattern(pattern));
             } catch (Exception ignore) {
             }
         }
+        return null;
+    }
+
+    // Chuẩn hóa ngày để lưu database (format: yyyy-MM-dd)
+    private static String normalizeDate(String date) {
+        LocalDate parsedDate = parseDate(date);
+        if (parsedDate != null)
+            return parsedDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
         System.err.println("Không thể parse ngày: " + date);
         return null;
     }
 
-    public static String chuanHoaNgayHienThi(String d) {
-        String[] patterns = {
-                "d/M/yyyy", "d/MM/yyyy", "dd/M/yyyy", "dd/MM/yyyy",
-                "d-M-yyyy", "d-MM-yyyy", "dd-M-yyyy", "dd-MM-yyyy",
-                "yyyy/M/d", "yyyy/MM/d", "yyyy/M/dd", "yyyy/MM/dd",
-                "yyyy-M-d", "yyyy-MM-d", "yyyy-M-dd", "yyyy-MM-dd"
-        };
-        LocalDate date = null;
-        for (String pattern : patterns) {
-            try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-                date = LocalDate.parse(d, formatter);
-                break;
-            } catch (DateTimeParseException e) {
+    // Chuẩn hóa ngày để hiển thị UI (format: dd/MM/yyyy)
+    public static String chuanHoaNgayHienThi(String date) {
+        LocalDate parsedDate = parseDate(date);
+        if (parsedDate != null)
+            return parsedDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-            }
-        }
-
-        if (date != null) {
-            d = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        } else {
-            System.out.println("Định dạng ngày sinh không hợp lệ: " + d);
-        }
-
-        return d;
+        System.out.println("Định dạng ngày sinh không hợp lệ: " + date);
+        return date;
     }
 
     // Tìm tourId khi biết tourName và dayStart và numberOfDays

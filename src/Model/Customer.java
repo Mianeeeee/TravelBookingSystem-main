@@ -22,7 +22,6 @@ public class Customer extends Human {
     }
 
     // Set
-
     public void setNumberOfCustomers(int numberOfCustomers) {
         this.numberOfCustomers = numberOfCustomers;
     }

@@ -1,1 +1,1 @@
-SELECT * FROM tour
+SELECT * FROM customer;

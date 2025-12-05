@@ -4,7 +4,7 @@ import java.time.*;
 import java.time.format.*;
 
 public class Human {
-    private String Name, Birthday, PhoneNumber, Email, TourBooking, BookingDate, BookingState;
+    protected String Name, Birthday, PhoneNumber, Email, TourBooking, BookingDate, BookingState;
 
     public Human() {
         this.Name = "";
